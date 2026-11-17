@@ -339,3 +339,4 @@ El repositorio contiene los dos proyectos: backend y frontend. Para preparar el 
 **Materia:** Programación 4  
 **Carrera:** Tecnicatura Universitaria en Programación a Distancia  
 **Repositorio:** https://github.com/leonelthb/TPI-Programacion-4.git
+**Video:** https://youtu.be/Zn7rGvxcKKw
