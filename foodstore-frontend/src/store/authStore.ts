@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 import type { Usuario } from '../types/usuario'
+import { useCartStore } from './cartStore'
 import {
   login as loginService,
   logout as logoutService,
@@ -34,8 +35,10 @@ export const useAuthStore = create<AuthState>()(
 
           const usuario = await getCurrentUser()
 
+          useCartStore.getState().activarUsuario(usuario.id)
           set({ usuario })
         } catch (error) {
+          useCartStore.getState().activarUsuario(null)
           set({ usuario: null })
           throw error
         } finally {
@@ -48,6 +51,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           await logoutService()
         } finally {
+          useCartStore.getState().activarUsuario(null)
           set({ usuario: null })
         }
       },
@@ -59,8 +63,10 @@ export const useAuthStore = create<AuthState>()(
         try {
           const usuario = await getCurrentUser()
 
+          useCartStore.getState().activarUsuario(usuario.id)
           set({ usuario })
         } catch {
+          useCartStore.getState().activarUsuario(null)
           set({ usuario: null })
         } finally {
           set({ cargando: false })

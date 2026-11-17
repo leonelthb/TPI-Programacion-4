@@ -15,7 +15,10 @@ export interface CartItem {
 // Define el estado y las operaciones del carrito.
 interface CartState {
   items: CartItem[]
+  usuarioId: number | null
+  carritosPorUsuario: Record<string, CartItem[]>
 
+  activarUsuario: (usuarioId: number | null) => void
   agregar: (producto: Producto, cantidad?: number) => void
   quitar: (productoId: number) => void
   cambiarCantidad: (productoId: number, cantidad: number) => void
@@ -23,113 +26,136 @@ interface CartState {
   total: () => number
 }
 
-// Creamos el store global del carrito.
+function guardarItems(state: CartState, items: CartItem[]) {
+  if (state.usuarioId === null) return { items }
+
+  return {
+    items,
+    carritosPorUsuario: {
+      ...state.carritosPorUsuario,
+      [String(state.usuarioId)]: items,
+    },
+  }
+}
+
+// Creamos el store global con un carrito independiente para cada cuenta.
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      // Estado inicial.
       items: [],
+      usuarioId: null,
+      carritosPorUsuario: {},
 
-      agregar: (producto, cantidad = 1) => {
-  if (
-    cantidad < 1 ||
-    !producto.activo ||
-    !producto.disponible ||
-    producto.stock <= 0
-  ) {
-    return
-  }
+      activarUsuario: (usuarioId) => {
+        set((state) => {
+          if (state.usuarioId === usuarioId) return state
 
-  set((state) => {
-    const existente = state.items.find(
-      (item) => item.producto_id === producto.id,
-    )
+          const carritosPorUsuario = { ...state.carritosPorUsuario }
 
-    if (existente) {
-      return {
-        items: state.items.map((item) =>
-          item.producto_id === producto.id
-            ? {
-                ...item,
-                // Actualiza el stock conocido y limita la cantidad.
-                stock_disponible: producto.stock,
-                cantidad: Math.min(
-                  item.cantidad + cantidad,
-                  producto.stock,
-                ),
-              }
-            : item,
-        ),
-      }
-    }
-
-    return {
-      items: [
-        ...state.items,
-        {
-          producto_id: producto.id,
-          nombre: producto.nombre,
-          precio_unitario: producto.precio_base,
-          cantidad: Math.min(cantidad, producto.stock),
-          stock_disponible: producto.stock,
-        },
-      ],
-    }
-  })
-},
-      // Elimina un producto del carrito.
-      quitar: (productoId) => {
-        set((state) => ({
-          items: state.items.filter(
-            (item) => item.producto_id !== productoId,
-          ),
-        }))
-      },
-
-      // Modifica la cantidad de un producto.
-        cambiarCantidad: (productoId, cantidad) => {
-          if (cantidad <= 0) {
-            get().quitar(productoId)
-            return
+          if (state.usuarioId !== null) {
+            carritosPorUsuario[String(state.usuarioId)] = state.items
           }
 
-          set((state) => ({
-            items: state.items.map((item) => {
-              if (item.producto_id !== productoId) {
-                return item
-              }
-
-              // Si el carrito es anterior a este cambio, usamos su cantidad
-              // como límite conservador hasta actualizar el producto.
-              const stockMaximo =
-                item.stock_disponible ?? item.cantidad
-
-              return {
-                ...item,
-                cantidad: Math.min(cantidad, stockMaximo),
-              }
-            }),
-          }))
-        },
-
-      // Vacía completamente el carrito.
-      vaciar: () => {
-        set({ items: [] })
+          return {
+            usuarioId,
+            items:
+              usuarioId === null
+                ? []
+                : carritosPorUsuario[String(usuarioId)] ?? [],
+            carritosPorUsuario,
+          }
+        })
       },
 
-      // Calcula el importe total del carrito.
-      total: () => {
-        return get().items.reduce(
+      agregar: (producto, cantidad = 1) => {
+        if (
+          cantidad < 1 ||
+          !producto.activo ||
+          !producto.disponible ||
+          producto.stock <= 0
+        ) {
+          return
+        }
+
+        set((state) => {
+          const existente = state.items.find(
+            (item) => item.producto_id === producto.id,
+          )
+
+          const items = existente
+            ? state.items.map((item) =>
+                item.producto_id === producto.id
+                  ? {
+                      ...item,
+                      stock_disponible: producto.stock,
+                      cantidad: Math.min(
+                        item.cantidad + cantidad,
+                        producto.stock,
+                      ),
+                    }
+                  : item,
+              )
+            : [
+                ...state.items,
+                {
+                  producto_id: producto.id,
+                  nombre: producto.nombre,
+                  precio_unitario: producto.precio_base,
+                  cantidad: Math.min(cantidad, producto.stock),
+                  stock_disponible: producto.stock,
+                },
+              ]
+
+          return guardarItems(state, items)
+        })
+      },
+
+      quitar: (productoId) => {
+        set((state) =>
+          guardarItems(
+            state,
+            state.items.filter((item) => item.producto_id !== productoId),
+          ),
+        )
+      },
+
+      cambiarCantidad: (productoId, cantidad) => {
+        if (cantidad <= 0) {
+          get().quitar(productoId)
+          return
+        }
+
+        set((state) => {
+          const items = state.items.map((item) => {
+            if (item.producto_id !== productoId) return item
+
+            const stockMaximo = item.stock_disponible ?? item.cantidad
+            return { ...item, cantidad: Math.min(cantidad, stockMaximo) }
+          })
+
+          return guardarItems(state, items)
+        })
+      },
+
+      vaciar: () => {
+        set((state) => guardarItems(state, []))
+      },
+
+      total: () =>
+        get().items.reduce(
           (acumulado, item) =>
             acumulado + item.precio_unitario * item.cantidad,
           0,
-        )
-      },
+        ),
     }),
-
     {
-      name: 'foodstore-cart',
+      name: 'foodstore-carts-by-user',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        items: state.items,
+        usuarioId: state.usuarioId,
+        carritosPorUsuario: state.carritosPorUsuario,
+      }),
     },
   ),
 )
