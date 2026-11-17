@@ -1,0 +1,225 @@
+
+@import "tailwindcss";
+
+/* ========================================
+   IDENTIDAD VISUAL FOOD STORE
+   ======================================== */
+
+@theme inline {
+  --color-food-green: var(--food-green);
+  --color-food-green-light: var(--food-green-light);
+  --color-food-orange: var(--food-orange);
+  --color-food-orange-dark: var(--food-orange-dark);
+  --color-food-cream: var(--food-cream);
+  --color-food-background: var(--food-background);
+  --color-food-white: var(--food-white);
+  --color-food-text: var(--food-text);
+  --color-food-muted: var(--food-muted);
+  --color-food-border: var(--food-border);
+
+  --font-sans: Arial, Helvetica, sans-serif;
+}
+
+/* ========================================
+   VARIABLES GLOBALES
+   ======================================== */
+
+:root {
+  color-scheme: light;
+
+  --food-green: #2B124C;
+  --food-green-light: #522B5B;
+  --food-orange: #854F6C;
+  --food-orange-dark: #522B5B;
+  --food-cream: #DFB6B2;
+  --food-background: #FBE4D8;
+  --food-white: #FFFAF8;
+  --food-text: #190019;
+  --food-muted: #6D5065;
+  --food-border: #DFB6B2;
+
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--food-text);
+  background: var(--food-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --food-green: #2B124C;
+  --food-green-light: #522B5B;
+  --food-orange: #854F6C;
+  --food-orange-dark: #DFB6B2;
+  --food-cream: #522B5B;
+  --food-background: #190019;
+  --food-white: #2B124C;
+  --food-text: #FBE4D8;
+  --food-muted: #DFB6B2;
+  --food-border: #522B5B;
+}
+
+html[data-theme='dark'] .text-food-green {
+  color: var(--food-text);
+}
+
+html[data-theme='dark'] .text-food-orange,
+html[data-theme='dark'] .text-food-orange-dark,
+html[data-theme='dark'] .text-food-cream {
+  color: #DFB6B2;
+}
+
+/* ========================================
+   CONFIGURACIÓN GENERAL
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--food-background);
+  color: var(--food-text);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ========================================
+   TEXTOS
+   ======================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--food-green);
+  line-height: 1.3;
+}
+
+p {
+  line-height: 1.6;
+}
+
+a {
+  color: var(--food-orange-dark);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--food-green);
+}
+
+/* ========================================
+   FORMULARIOS
+   ======================================== */
+
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #A39D94;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder {
+  color: #DFB6B2;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--food-orange);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
+button {
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ========================================
+   TABLAS
+   ======================================== */
+
+table {
+  border-collapse: collapse;
+}
+
+/* ========================================
+   SELECCIÓN DE TEXTO
+   ======================================== */
+
+::selection {
+  color: white;
+  background-color: var(--food-green);
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #C9BFB0 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #C9BFB0;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
